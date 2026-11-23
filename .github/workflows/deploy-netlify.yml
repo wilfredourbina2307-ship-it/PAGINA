@@ -1,0 +1,60 @@
+name: CI/CD - Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ci-cd:
+    name: Integración Continua y Despliegue en Netlify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Descargar el código fuente del repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar entorno de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Instalar dependencias limpias (npm ci)
+        run: npm ci
+
+      - name: 4. Ejecutar validación de código estático (Linter)
+        run: npm run lint
+
+      - name: 5. Compilar proyecto Next.js (Build)
+        env:
+          DELIMENU_API_URL: ${{ secrets.DELIMENU_API_URL || 'https://delimenu.co/api/v1' }}
+          DELIMENU_MENU: ${{ secrets.DELIMENU_MENU || 'demo' }}
+        run: npm run build
+
+      - name: 6. Despliegue de Preview en Netlify (Pull Requests)
+        if: github.event_name == 'pull_request'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npx netlify-cli deploy \
+            --site "$NETLIFY_SITE_ID" \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --message "Deploy Preview PR #${{ github.event.pull_request.number }} [${{ github.sha }}]"
+
+      - name: 7. Despliegue a Producción en Netlify (Push a main o manual)
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npx netlify-cli deploy \
+            --prod \
+            --site "$NETLIFY_SITE_ID" \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --message "Deploy Producción commit ${{ github.sha }}"

@@ -21,6 +21,7 @@ El diseño replica la experiencia de la aclamada plantilla [Maison](https://mais
 - [Instalación y Configuración](#-instalación-y-configuración)
 - [Cómo Iniciar el Servidor](#-cómo-iniciar-el-servidor)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Despliegue Continuo (CI/CD en Netlify)](#-despliegue-continuo-cicd-en-netlify)
 - [Repositorio Original y Créditos](#-repositorio-original-y-créditos)
 - [Licencia](#-licencia)
 
@@ -164,14 +165,33 @@ npm start
 │   ├── ScrollPane.tsx          # Panel derecho con scroll independiente y barra de progreso
 │   ├── Sidebar.tsx             # Panel izquierdo con logo, navegación y llamado a reserva
 │   └── Wordmark.tsx            # Tipografía responsiva de gran formato adaptada al contenedor
+├── .github/
+│   └── workflows/
+│       └── deploy-netlify.yml  # Workflow de CI/CD para GitHub Actions y Netlify
+├── docs/
+│   └── CI_CD_NETLIFY.md        # Documentación línea por línea del CI/CD
 ├── lib/
 │   └── delimenu.ts             # Cliente de la API de Delimenu, tipos TypeScript y utilidades
 ├── iniciar-servidor.exe        # Lanzador nativo Windows de un solo clic
 ├── iniciar-servidor.bat        # Lanzador batch para Windows
 ├── iniciar-servidor.cs         # Código fuente en C# del lanzador
+├── netlify.toml                # Configuración de compilación y plugin Next.js en Netlify
 ├── package.json                # Dependencias y scripts del proyecto
 └── README.md                   # Documentación del proyecto
 ```
+
+---
+
+## 🌐 Despliegue Continuo (CI/CD en Netlify)
+
+El proyecto cuenta con un flujo automatizado de CI/CD mediante **GitHub Actions** configurado en [`.github/workflows/deploy-netlify.yml`](.github/workflows/deploy-netlify.yml):
+
+* **Fase CI (Integración Continua)**: Verifica el código con ESLint (`npm run lint`) y compila la aplicación (`npm run build`) en cada commit o Pull Request.
+* **Fase CD (Despliegue Continuo)**:
+  * Genera un **Deploy Preview** en cada Pull Request para validar visualmente los cambios antes de fusionar.
+  * Publica automáticamente a **Producción** cuando se hace push a la rama `main` o mediante ejecución manual (`workflow_dispatch`).
+
+Para ver la explicación detallada línea por línea de cada instrucción del workflow y la configuración de secretos (`NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`), consulta la [Guía completa de CI/CD para Netlify](docs/CI_CD_NETLIFY.md).
 
 ---
 

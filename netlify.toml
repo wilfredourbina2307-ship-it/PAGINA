@@ -1,0 +1,12 @@
+# Configuración de Netlify para proyecto Next.js (App Router)
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Versión de Node.js requerida por package.json (>=20.9.0)
+  NODE_VERSION = "20.18.0"
+
+# Plugin oficial de Netlify para soporte nativo de Next.js (ISR, Server Components, Route Handlers)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
